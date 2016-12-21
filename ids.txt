@@ -1,0 +1,8 @@
+
+ztaspkalkh.tunnel.pirklbauer.io
+testing.tunnel.pirklbauer.io
+twitterbot.tunnel.pirklbauer.io
+twitterbot.tunnel.pirklbauer.io
+preview.tunnel.pirklbauer.io
+remote.tunnel.pirklbauer.io
+local.tunnel.pirklbauer.io

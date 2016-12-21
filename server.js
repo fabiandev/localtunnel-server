@@ -1,3 +1,5 @@
+import fs from 'fs';
+
 import log from 'bookrc';
 import express from 'express';
 import tldjs from 'tldjs';
@@ -14,7 +16,7 @@ import BindingAgent from './lib/BindingAgent';
 const debug = Debug('localtunnel:server');
 
 const proxy = http_proxy.createProxyServer({
-    target: 'http://localtunnel.github.io'
+    target: 'https://tunnel.pirklbauer.io:8443'
 });
 
 proxy.on('error', function(err) {
@@ -25,7 +27,7 @@ proxy.on('proxyReq', function(proxyReq, req, res, options) {
     // rewrite the request so it hits the correct url on github
     // also make sure host header is what we expect
     proxyReq.path = '/www' + proxyReq.path;
-    proxyReq.setHeader('host', 'localtunnel.github.io');
+    proxyReq.setHeader('host', 'tunnel.pirklbauer.io');
 });
 
 const PRODUCTION = process.env.NODE_ENV === 'production';
@@ -47,8 +49,9 @@ function maybe_bounce(req, res, sock, head) {
         return false;
     }
 
-    const subdomain = tldjs.getSubdomain(hostname);
-    if (!subdomain) {
+    const subdomain = hostname.split('.')[0];
+
+    if (subdomain === 'tunnel') {
         return false;
     }
 
@@ -192,6 +195,10 @@ function new_client(id, opt, cb) {
         id = rand_id();
     }
 
+    fs.appendFile('/home/pi/localtunnel-server/ids.txt', `${id}.tunnel.pirklbauer.io\n`, err => {
+        if (err) console.log('Error writing id to file.');
+    });
+
     const popt = {
         id: id,
         max_tcp_sockets: opt.max_tcp_sockets
@@ -249,7 +256,7 @@ module.exports = function(opt) {
     });
 
     app.get('/', function(req, res, next) {
-        res.redirect('https://localtunnel.github.io/www/');
+        res.redirect('https://tunnel.pirklbauer.io:8443');
     });
 
     // TODO(roman) remove after deploying redirect above
